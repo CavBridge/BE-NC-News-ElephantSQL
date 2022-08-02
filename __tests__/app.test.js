@@ -13,7 +13,7 @@ beforeEach(() => {
 });
 
 describe("TOPICS", () => {
-  describe.only("GET /api/topics", () => {
+  describe("GET /api/topics", () => {
     test("returns a status of 200", () => {
       return request(app).get("/api/topics").expect(200);
     });
@@ -47,4 +47,49 @@ describe("TOPICS", () => {
   });
 });
 
-//error test to check if incorrect spelling
+describe("ARTICLES", () => {
+  describe("GET /api/articles/:article_id", () => {
+    test("returns a status of 200", () => {
+      const article_id = 4;
+      return request(app).get(`/api/articles/${article_id}`).expect(200);
+    });
+
+    test("status:200 returns a single article object", () => {
+      const article_id = 4;
+      return request(app)
+        .get(`/api/articles/${article_id}`)
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.article).toEqual({
+            article_id: article_id,
+            title: "Student SUES Mitch!",
+            topic: "mitch",
+            author: "rogersop",
+            body: "We all love Mitch and his wonderful, unique typing style. However, the volume of his typing has ALLEGEDLY burst another students eardrums, and they are now suing for damages",
+            created_at: "2020-05-06T01:14:00.000Z",
+            votes: 0,
+          });
+        });
+    });
+
+    test("status:404 returns not found status code if the endpoint is not valid", () => {
+      const article_id = 48933;
+      return request(app)
+        .get(`/api/articles/${article_id}`)
+        .expect(404)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("article not found");
+        });
+    });
+
+    test("status:400 returns invalid input status code if the endpoint is not valid", () => {
+      const article_id = "not-an-id";
+      return request(app)
+        .get(`/api/articles/${article_id}`)
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("invalid input");
+        });
+    });
+  });
+});
