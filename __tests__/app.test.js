@@ -46,14 +46,12 @@ describe("TOPICS", () => {
     });
   });
 });
-
 describe("ARTICLES", () => {
   describe("GET /api/articles/:article_id", () => {
     test("returns a status of 200", () => {
       const article_id = 4;
       return request(app).get(`/api/articles/${article_id}`).expect(200);
     });
-
     test("status:200 returns a single article object", () => {
       const article_id = 4;
       return request(app)
@@ -71,8 +69,7 @@ describe("ARTICLES", () => {
           });
         });
     });
-
-    test("status:404 returns not found status code if the endpoint is not valid", () => {
+    test("status:404 returns not found status code if the article does not exist", () => {
       const article_id = 48933;
       return request(app)
         .get(`/api/articles/${article_id}`)
@@ -81,7 +78,6 @@ describe("ARTICLES", () => {
           expect(msg).toBe("article not found");
         });
     });
-
     test("status:400 returns invalid input status code if the endpoint is not valid", () => {
       const article_id = "not-an-id";
       return request(app)
@@ -89,6 +85,87 @@ describe("ARTICLES", () => {
         .expect(400)
         .then(({ body: { msg } }) => {
           expect(msg).toBe("invalid input");
+        });
+    });
+  });
+  describe("PATCH /api/articles/:article_id", () => {
+    test("status:200 patch and return the updated article with incremented votes", () => {
+      const article_id = 4;
+      return request(app)
+        .patch(`/api/articles/${article_id}`)
+        .send({
+          inc_votes: 46,
+        })
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.article).toEqual({
+            article_id: article_id,
+            title: "Student SUES Mitch!",
+            topic: "mitch",
+            author: "rogersop",
+            body: "We all love Mitch and his wonderful, unique typing style. However, the volume of his typing has ALLEGEDLY burst another students eardrums, and they are now suing for damages",
+            created_at: "2020-05-06T01:14:00.000Z",
+            votes: 46,
+          });
+        });
+    });
+    test("status:200 patch and return the updated article with decremented votes", () => {
+      const article_id = 4;
+      return request(app)
+        .patch(`/api/articles/${article_id}`)
+        .send({
+          inc_votes: -79,
+        })
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.article).toEqual({
+            article_id: article_id,
+            title: "Student SUES Mitch!",
+            topic: "mitch",
+            author: "rogersop",
+            body: "We all love Mitch and his wonderful, unique typing style. However, the volume of his typing has ALLEGEDLY burst another students eardrums, and they are now suing for damages",
+            created_at: "2020-05-06T01:14:00.000Z",
+            votes: -79,
+          });
+        });
+    });
+    test("status:200 returns invalid input status code if object is empty", () => {
+      const article_id = 4;
+      return request(app)
+        .patch(`/api/articles/${article_id}`)
+        .send({})
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.article).toEqual({
+            article_id: article_id,
+            title: "Student SUES Mitch!",
+            topic: "mitch",
+            author: "rogersop",
+            body: "We all love Mitch and his wonderful, unique typing style. However, the volume of his typing has ALLEGEDLY burst another students eardrums, and they are now suing for damages",
+            created_at: "2020-05-06T01:14:00.000Z",
+            votes: 0,
+          });
+        });
+    });
+    test("status:400 returns invalid input status code if votes is not a number", () => {
+      const article_id = 4;
+      return request(app)
+        .patch(`/api/articles/${article_id}`)
+        .send({
+          inc_votes: "hello",
+        })
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("invalid input");
+        });
+    });
+    test("status:404 returns not found status code if the endpoint is not valid", () => {
+      const article_id = 56743;
+      return request(app)
+        .patch(`/api/articles/${article_id}`)
+        .expect(404)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("article not found");
         });
     });
   });
