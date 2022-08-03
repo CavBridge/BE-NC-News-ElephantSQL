@@ -159,7 +159,7 @@ describe("ARTICLES", () => {
           expect(msg).toBe("invalid input");
         });
     });
-    test("status:404 returns not found status code if the endpoint is not valid", () => {
+    test("status:404 returns not found status code if the article does not exist", () => {
       const article_id = 56743;
       return request(app)
         .patch(`/api/articles/${article_id}`)
