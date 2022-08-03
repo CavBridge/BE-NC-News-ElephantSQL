@@ -17,7 +17,6 @@ describe("TOPICS", () => {
     test("returns a status of 200", () => {
       return request(app).get("/api/topics").expect(200);
     });
-
     test("status:200 returns with array of topic objects containing slug and description", () => {
       return request(app)
         .get("/api/topics")
@@ -35,7 +34,6 @@ describe("TOPICS", () => {
           });
         });
     });
-
     test("status:404 returns not found status code if the endpoint is not valid", () => {
       return request(app)
         .get("/api/apple")
@@ -166,6 +164,39 @@ describe("ARTICLES", () => {
         .expect(404)
         .then(({ body: { msg } }) => {
           expect(msg).toBe("article not found");
+        });
+    });
+  });
+});
+describe("USERS", () => {
+  describe("GET /api/users", () => {
+    test("returns a status of 200", () => {
+      return request(app).get("/api/users").expect(200);
+    });
+    test("status:200 returns with array of user objects containing username, name and avatar_url", () => {
+      return request(app)
+        .get("/api/users")
+        .expect(200)
+        .then(({ body }) => {
+          const { users } = body;
+          expect(users).toHaveLength(4);
+          users.forEach((user) => {
+            expect(user).toEqual(
+              expect.objectContaining({
+                username: expect.any(String),
+                name: expect.any(String),
+                avatar_url: expect.any(String),
+              })
+            );
+          });
+        });
+    });
+    test("status:404 returns not found status code if the endpoint is not valid", () => {
+      return request(app)
+        .get("/api/grape")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("path not found");
         });
     });
   });
