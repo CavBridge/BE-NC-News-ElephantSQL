@@ -191,7 +191,7 @@ describe("USERS", () => {
           });
         });
     });
-    test.only("status:404 returns not found status code if the endpoint is not valid", () => {
+    test("status:404 returns not found status code if the endpoint is not valid", () => {
       return request(app)
         .get("/api/grape")
         .expect(404)
