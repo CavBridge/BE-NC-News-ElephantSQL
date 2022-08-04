@@ -114,6 +114,31 @@ describe("ARTICLES", () => {
         });
     });
   });
+  describe("GET /api/articles", () => {
+    test("status 200 returns with article array of article objects", () => {
+      return request(app)
+        .get(`/api/articles`)
+        .expect(200)
+        .then(({ body }) => {
+          const { articles } = body;
+          console.log(articles);
+          expect(articles).toHaveLength(12);
+          articles.forEach((article) => {
+            expect(article).toEqual(
+              expect.objectContaining({
+                article_id: expect.any(Number),
+                title: expect.any(String),
+                topic: expect.any(String),
+                author: expect.any(String),
+                created_at: expect.any(String),
+                votes: expect.any(Number),
+                comment_count: expect.any(Number),
+              })
+            );
+          });
+        });
+    });
+  });
 });
 describe("PATCH /api/articles/:article_id", () => {
   test("status:200 patch and return the updated article with incremented votes", () => {
