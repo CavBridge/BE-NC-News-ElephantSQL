@@ -11,7 +11,16 @@ afterAll(() => {
 beforeEach(() => {
   return seed(data);
 });
-
+describe("HANDLE INVALID ENDPOINT", () => {
+  test("status:404 returns invalid input status code if the endpoint is not valid", () => {
+    return request(app)
+      .get(`/api/notanendpoint`)
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("path not found");
+      });
+  });
+});
 describe("TOPICS", () => {
   describe("GET /api/topics", () => {
     test("returns a status of 200", () => {
@@ -64,6 +73,25 @@ describe("ARTICLES", () => {
             body: "We all love Mitch and his wonderful, unique typing style. However, the volume of his typing has ALLEGEDLY burst another students eardrums, and they are now suing for damages",
             created_at: "2020-05-06T01:14:00.000Z",
             votes: 0,
+            comment_count: 0,
+          });
+        });
+    });
+    test("status:200 returns article object with additional comment count property", () => {
+      const article_id = 1;
+      return request(app)
+        .get(`/api/articles/${article_id}`)
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.article).toEqual({
+            article_id: article_id,
+            title: "Living in the shadow of a great man",
+            topic: "mitch",
+            author: "butter_bridge",
+            body: "I find this existence challenging",
+            created_at: "2020-07-09T20:11:00.000Z",
+            votes: 100,
+            comment_count: 11,
           });
         });
     });
@@ -86,86 +114,86 @@ describe("ARTICLES", () => {
         });
     });
   });
-  describe("PATCH /api/articles/:article_id", () => {
-    test("status:200 patch and return the updated article with incremented votes", () => {
-      const article_id = 4;
-      return request(app)
-        .patch(`/api/articles/${article_id}`)
-        .send({
-          inc_votes: 46,
-        })
-        .expect(200)
-        .then(({ body }) => {
-          expect(body.article).toEqual({
-            article_id: article_id,
-            title: "Student SUES Mitch!",
-            topic: "mitch",
-            author: "rogersop",
-            body: "We all love Mitch and his wonderful, unique typing style. However, the volume of his typing has ALLEGEDLY burst another students eardrums, and they are now suing for damages",
-            created_at: "2020-05-06T01:14:00.000Z",
-            votes: 46,
-          });
+});
+describe("PATCH /api/articles/:article_id", () => {
+  test("status:200 patch and return the updated article with incremented votes", () => {
+    const article_id = 4;
+    return request(app)
+      .patch(`/api/articles/${article_id}`)
+      .send({
+        inc_votes: 46,
+      })
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.article).toEqual({
+          article_id: article_id,
+          title: "Student SUES Mitch!",
+          topic: "mitch",
+          author: "rogersop",
+          body: "We all love Mitch and his wonderful, unique typing style. However, the volume of his typing has ALLEGEDLY burst another students eardrums, and they are now suing for damages",
+          created_at: "2020-05-06T01:14:00.000Z",
+          votes: 46,
         });
-    });
-    test("status:200 patch and return the updated article with decremented votes", () => {
-      const article_id = 4;
-      return request(app)
-        .patch(`/api/articles/${article_id}`)
-        .send({
-          inc_votes: -79,
-        })
-        .expect(200)
-        .then(({ body }) => {
-          expect(body.article).toEqual({
-            article_id: article_id,
-            title: "Student SUES Mitch!",
-            topic: "mitch",
-            author: "rogersop",
-            body: "We all love Mitch and his wonderful, unique typing style. However, the volume of his typing has ALLEGEDLY burst another students eardrums, and they are now suing for damages",
-            created_at: "2020-05-06T01:14:00.000Z",
-            votes: -79,
-          });
+      });
+  });
+  test("status:200 patch and return the updated article with decremented votes", () => {
+    const article_id = 4;
+    return request(app)
+      .patch(`/api/articles/${article_id}`)
+      .send({
+        inc_votes: -79,
+      })
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.article).toEqual({
+          article_id: article_id,
+          title: "Student SUES Mitch!",
+          topic: "mitch",
+          author: "rogersop",
+          body: "We all love Mitch and his wonderful, unique typing style. However, the volume of his typing has ALLEGEDLY burst another students eardrums, and they are now suing for damages",
+          created_at: "2020-05-06T01:14:00.000Z",
+          votes: -79,
         });
-    });
-    test("status:200 returns invalid input status code if object is empty", () => {
-      const article_id = 4;
-      return request(app)
-        .patch(`/api/articles/${article_id}`)
-        .send({})
-        .expect(200)
-        .then(({ body }) => {
-          expect(body.article).toEqual({
-            article_id: article_id,
-            title: "Student SUES Mitch!",
-            topic: "mitch",
-            author: "rogersop",
-            body: "We all love Mitch and his wonderful, unique typing style. However, the volume of his typing has ALLEGEDLY burst another students eardrums, and they are now suing for damages",
-            created_at: "2020-05-06T01:14:00.000Z",
-            votes: 0,
-          });
+      });
+  });
+  test("status:200 returns invalid input status code if object is empty", () => {
+    const article_id = 4;
+    return request(app)
+      .patch(`/api/articles/${article_id}`)
+      .send({})
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.article).toEqual({
+          article_id: article_id,
+          title: "Student SUES Mitch!",
+          topic: "mitch",
+          author: "rogersop",
+          body: "We all love Mitch and his wonderful, unique typing style. However, the volume of his typing has ALLEGEDLY burst another students eardrums, and they are now suing for damages",
+          created_at: "2020-05-06T01:14:00.000Z",
+          votes: 0,
         });
-    });
-    test("status:400 returns invalid input status code if votes is not a number", () => {
-      const article_id = 4;
-      return request(app)
-        .patch(`/api/articles/${article_id}`)
-        .send({
-          inc_votes: "hello",
-        })
-        .expect(400)
-        .then(({ body: { msg } }) => {
-          expect(msg).toBe("invalid input");
-        });
-    });
-    test("status:404 returns not found status code if the article does not exist", () => {
-      const article_id = 56743;
-      return request(app)
-        .patch(`/api/articles/${article_id}`)
-        .expect(404)
-        .then(({ body: { msg } }) => {
-          expect(msg).toBe("article not found");
-        });
-    });
+      });
+  });
+  test("status:400 returns invalid input status code if votes is not a number", () => {
+    const article_id = 4;
+    return request(app)
+      .patch(`/api/articles/${article_id}`)
+      .send({
+        inc_votes: "hello",
+      })
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("invalid input");
+      });
+  });
+  test("status:404 returns not found status code if the article does not exist", () => {
+    const article_id = 56743;
+    return request(app)
+      .patch(`/api/articles/${article_id}`)
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("article not found");
+      });
   });
 });
 describe("USERS", () => {
