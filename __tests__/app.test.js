@@ -3,7 +3,7 @@ const request = require("supertest");
 const seed = require("../db/seeds/seed");
 const db = require("../db/connection");
 const data = require("../db/data/test-data/index");
-
+require("jest-sorted");
 afterAll(() => {
   return db.end();
 });
@@ -122,6 +122,7 @@ describe("ARTICLES", () => {
         .then(({ body }) => {
           const { articles } = body;
           expect(articles).toHaveLength(12);
+          expect(articles).toBeSortedBy("created_at", { descending: true });
           articles.forEach((article) => {
             expect(article).toEqual(
               expect.objectContaining({
