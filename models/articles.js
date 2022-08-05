@@ -1,6 +1,6 @@
 const db = require("../db/connection");
 const articles = require("../db/data/development-data/articles");
-
+const comments = require("../db/data/development-data/comments");
 exports.fetchArticlesById = (article_id) => {
   return db
     .query(
@@ -55,5 +55,17 @@ exports.fetchArticleCommentsById = (article_id) => {
     )
     .then(({ rows }) => {
       return rows;
+    });
+};
+
+exports.insertComment = (article_id, newComment = 0) => {
+  const { body, username } = newComment;
+  return db
+    .query(
+      "INSERT INTO comments (article_id, body, author) VALUES ($1, $2, $3) RETURNING *;",
+      [article_id, body, username]
+    )
+    .then(({ rows }) => {
+      return rows[0];
     });
 };

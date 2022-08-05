@@ -1,9 +1,11 @@
+const e = require("express");
 const express = require("express");
 const {
   getArticlesAndId,
   updateArticleVotes,
   getArticles,
   getArticleCommentsById,
+  addComment,
 } = require("./controllers/articles");
 const { getTopics } = require("./controllers/topics");
 const { getUsers } = require("./controllers/users");
@@ -14,6 +16,7 @@ app.get("/api/articles/:article_id", getArticlesAndId);
 app.patch("/api/articles/:article_id", updateArticleVotes);
 app.get("/api/articles", getArticles);
 app.get("/api/articles/:article_id/comments", getArticleCommentsById);
+app.post("/api/articles/:article_id/comments", addComment);
 app.get("/api/users", getUsers);
 
 ////////////////////////////
@@ -25,8 +28,10 @@ app.use((err, req, res, next) => {
   }
 });
 app.use((err, req, res, next) => {
-  if (err.code === "22P02" || err.code === "23502") {
+  if (err.code === "22P02") {
     res.status(400).send({ msg: "invalid input" });
+  } else if (err.code === "23502") {
+    res.status(400).send({ msg: "bad request" });
   } else {
     next(err);
   }
