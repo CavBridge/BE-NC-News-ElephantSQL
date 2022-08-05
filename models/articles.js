@@ -45,3 +45,15 @@ exports.fetchArticles = () => {
       return articles.rows;
     });
 };
+
+exports.fetchArticleCommentsById = (article_id) => {
+  return db
+    .query(
+      `SELECT comment_id, body, author, votes, created_at
+     FROM comments WHERE article_id = $1`,
+      [article_id]
+    )
+    .then(({ rows }) => {
+      return rows;
+    });
+};
