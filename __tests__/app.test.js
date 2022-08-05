@@ -104,7 +104,7 @@ describe("ARTICLES", () => {
           expect(msg).toBe("article not found");
         });
     });
-    test("status:400 returns invalid input status code if the endpoint is not valid", () => {
+    test("status:400 returns invalid input status code if article id does not exist ", () => {
       const article_id = "not-an-id";
       return request(app)
         .get(`/api/articles/${article_id}`)
@@ -139,118 +139,169 @@ describe("ARTICLES", () => {
         });
     });
   });
-});
-describe("PATCH /api/articles/:article_id", () => {
-  test("status:200 patch and return the updated article with incremented votes", () => {
-    const article_id = 4;
-    return request(app)
-      .patch(`/api/articles/${article_id}`)
-      .send({
-        inc_votes: 46,
-      })
-      .expect(200)
-      .then(({ body }) => {
-        expect(body.article).toEqual({
-          article_id: article_id,
-          title: "Student SUES Mitch!",
-          topic: "mitch",
-          author: "rogersop",
-          body: "We all love Mitch and his wonderful, unique typing style. However, the volume of his typing has ALLEGEDLY burst another students eardrums, and they are now suing for damages",
-          created_at: "2020-05-06T01:14:00.000Z",
-          votes: 46,
-        });
-      });
-  });
-  test("status:200 patch and return the updated article with decremented votes", () => {
-    const article_id = 4;
-    return request(app)
-      .patch(`/api/articles/${article_id}`)
-      .send({
-        inc_votes: -79,
-      })
-      .expect(200)
-      .then(({ body }) => {
-        expect(body.article).toEqual({
-          article_id: article_id,
-          title: "Student SUES Mitch!",
-          topic: "mitch",
-          author: "rogersop",
-          body: "We all love Mitch and his wonderful, unique typing style. However, the volume of his typing has ALLEGEDLY burst another students eardrums, and they are now suing for damages",
-          created_at: "2020-05-06T01:14:00.000Z",
-          votes: -79,
-        });
-      });
-  });
-  test("status:200 returns invalid input status code if object is empty", () => {
-    const article_id = 4;
-    return request(app)
-      .patch(`/api/articles/${article_id}`)
-      .send({})
-      .expect(200)
-      .then(({ body }) => {
-        expect(body.article).toEqual({
-          article_id: article_id,
-          title: "Student SUES Mitch!",
-          topic: "mitch",
-          author: "rogersop",
-          body: "We all love Mitch and his wonderful, unique typing style. However, the volume of his typing has ALLEGEDLY burst another students eardrums, and they are now suing for damages",
-          created_at: "2020-05-06T01:14:00.000Z",
-          votes: 0,
-        });
-      });
-  });
-  test("status:400 returns invalid input status code if votes is not a number", () => {
-    const article_id = 4;
-    return request(app)
-      .patch(`/api/articles/${article_id}`)
-      .send({
-        inc_votes: "hello",
-      })
-      .expect(400)
-      .then(({ body: { msg } }) => {
-        expect(msg).toBe("invalid input");
-      });
-  });
-  test("status:404 returns not found status code if the article does not exist", () => {
-    const article_id = 56743;
-    return request(app)
-      .patch(`/api/articles/${article_id}`)
-      .expect(404)
-      .then(({ body: { msg } }) => {
-        expect(msg).toBe("article not found");
-      });
-  });
-});
-describe("USERS", () => {
-  describe("GET /api/users", () => {
-    test("returns a status of 200", () => {
-      return request(app).get("/api/users").expect(200);
-    });
-    test("status:200 returns with array of user objects containing username, name and avatar_url", () => {
+  describe("GET /api/articles/:article_id/comments", () => {
+    test("status:200 returns an array of comemnts for the given article_id containing correct properties", () => {
+      const article_id = 1;
       return request(app)
-        .get("/api/users")
+        .get(`/api/articles/${article_id}/comments`)
         .expect(200)
         .then(({ body }) => {
-          const { users } = body;
-          expect(users).toHaveLength(4);
-          users.forEach((user) => {
-            expect(user).toEqual(
+          const { comments } = body;
+          expect(comments).toHaveLength(11);
+          comments.forEach((comment) => {
+            expect(comment).toEqual(
               expect.objectContaining({
-                username: expect.any(String),
-                name: expect.any(String),
-                avatar_url: expect.any(String),
+                comment_id: expect.any(Number),
+                votes: expect.any(Number),
+                created_at: expect.any(String),
+                author: expect.any(String),
+                body: expect.any(String),
               })
             );
           });
         });
     });
-    test("status:404 returns not found status code if the endpoint is not valid", () => {
+    test("status:200 returns an empty array if the article has no comments", () => {
+      const article_id = 2;
       return request(app)
-        .get("/api/grape")
-        .expect(404)
+        .get(`/api/articles/${article_id}/comments`)
+        .expect(200)
         .then(({ body }) => {
-          expect(body.msg).toBe("path not found");
+          const { comments } = body;
+          expect(comments).toHaveLength(0);
         });
+    });
+    test("status:400 returns invalid input status code if article id does not exist ", () => {
+      const article_id = "not-an-id";
+      return request(app)
+        .get(`/api/articles/${article_id}/comments`)
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("invalid input");
+        });
+    });
+    test("status:404 returns not found status code if the article does not exist", () => {
+      const article_id = 4859432;
+      return request(app)
+        .get(`/api/articles/${article_id}/comments`)
+        .expect(404)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("article not found");
+        });
+    });
+    describe("PATCH /api/articles/:article_id", () => {
+      test("status:200 patch and return the updated article with incremented votes", () => {
+        const article_id = 4;
+        return request(app)
+          .patch(`/api/articles/${article_id}`)
+          .send({
+            inc_votes: 46,
+          })
+          .expect(200)
+          .then(({ body }) => {
+            expect(body.article).toEqual({
+              article_id: article_id,
+              title: "Student SUES Mitch!",
+              topic: "mitch",
+              author: "rogersop",
+              body: "We all love Mitch and his wonderful, unique typing style. However, the volume of his typing has ALLEGEDLY burst another students eardrums, and they are now suing for damages",
+              created_at: "2020-05-06T01:14:00.000Z",
+              votes: 46,
+            });
+          });
+      });
+      test("status:200 patch and return the updated article with decremented votes", () => {
+        const article_id = 4;
+        return request(app)
+          .patch(`/api/articles/${article_id}`)
+          .send({
+            inc_votes: -79,
+          })
+          .expect(200)
+          .then(({ body }) => {
+            expect(body.article).toEqual({
+              article_id: article_id,
+              title: "Student SUES Mitch!",
+              topic: "mitch",
+              author: "rogersop",
+              body: "We all love Mitch and his wonderful, unique typing style. However, the volume of his typing has ALLEGEDLY burst another students eardrums, and they are now suing for damages",
+              created_at: "2020-05-06T01:14:00.000Z",
+              votes: -79,
+            });
+          });
+      });
+      test("status:200 returns invalid input status code if object is empty", () => {
+        const article_id = 4;
+        return request(app)
+          .patch(`/api/articles/${article_id}`)
+          .send({})
+          .expect(200)
+          .then(({ body }) => {
+            expect(body.article).toEqual({
+              article_id: article_id,
+              title: "Student SUES Mitch!",
+              topic: "mitch",
+              author: "rogersop",
+              body: "We all love Mitch and his wonderful, unique typing style. However, the volume of his typing has ALLEGEDLY burst another students eardrums, and they are now suing for damages",
+              created_at: "2020-05-06T01:14:00.000Z",
+              votes: 0,
+            });
+          });
+      });
+      test("status:400 returns invalid input status code if votes is not a number", () => {
+        const article_id = 4;
+        return request(app)
+          .patch(`/api/articles/${article_id}`)
+          .send({
+            inc_votes: "hello",
+          })
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("invalid input");
+          });
+      });
+      test("status:404 returns not found status code if the article does not exist", () => {
+        const article_id = 56743;
+        return request(app)
+          .patch(`/api/articles/${article_id}`)
+          .expect(404)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("article not found");
+          });
+      });
+    });
+  });
+  describe("USERS", () => {
+    describe("GET /api/users", () => {
+      test("returns a status of 200", () => {
+        return request(app).get("/api/users").expect(200);
+      });
+      test("status:200 returns with array of user objects containing username, name and avatar_url", () => {
+        return request(app)
+          .get("/api/users")
+          .expect(200)
+          .then(({ body }) => {
+            const { users } = body;
+            expect(users).toHaveLength(4);
+            users.forEach((user) => {
+              expect(user).toEqual(
+                expect.objectContaining({
+                  username: expect.any(String),
+                  name: expect.any(String),
+                  avatar_url: expect.any(String),
+                })
+              );
+            });
+          });
+      });
+      test("status:404 returns not found status code if the endpoint is not valid", () => {
+        return request(app)
+          .get("/api/grape")
+          .expect(404)
+          .then(({ body }) => {
+            expect(body.msg).toBe("path not found");
+          });
+      });
     });
   });
 });
