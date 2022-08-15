@@ -138,6 +138,14 @@ describe("ARTICLES", () => {
           });
         });
     });
+    test("status:200 returns with article array of article objects sorted by title", () => {
+      return request(app)
+        .get("/api/articles?sort_by=title")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.articles).toBeSortedBy("title", { descending: true });
+        });
+    });
   });
   describe("GET /api/articles/:article_id/comments", () => {
     test("status:200 returns an array of comemnts for the given article_id containing correct properties", () => {

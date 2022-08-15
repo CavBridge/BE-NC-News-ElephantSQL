@@ -33,17 +33,19 @@ exports.patchArticleVotes = (article_id, newVotes = 0) => {
     });
 };
 
-exports.fetchArticles = () => {
-  return db
-    .query(
-      `SELECT articles.article_id, articles.title, articles.topic, articles.author, articles.created_at, articles.votes, COUNT(comment_id)::INT AS comment_count
-    FROM articles
-    LEFT JOIN comments ON articles.article_id = comments.article_id
-    GROUP BY articles.article_id ORDER BY created_at DESC`
-    )
-    .then((articles) => {
-      return articles.rows;
-    });
+exports.fetchArticles = (topic, sort_by = "created_at", order = "DESC") => {
+  const queryValue = [];
+  let queryStr = `SELECT articles.article_id, articles.title, articles.topic, articles.author, articles.created_at, articles.votes, COUNT(comment_id)::INT AS comment_count
+FROM articles
+LEFT JOIN comments ON articles.article_id = comments.article_id`;
+  if (topic) {
+    queryValue.push(topic);
+    queryStr += ` WHERE articles.topic = $1`;
+  }
+  queryStr += ` GROUP BY articles.article_id ORDER BY ${sort_by} ${order}`;
+  return db.query(queryStr, queryValue).then((articles) => {
+    return articles.rows;
+  });
 };
 
 exports.fetchArticleCommentsById = (article_id) => {
