@@ -5,6 +5,7 @@ const {
   getArticles,
   getArticleCommentsById,
   addComment,
+  deleteCommentById,
 } = require("./controllers/articles");
 const { getTopics } = require("./controllers/topics");
 const { getUsers } = require("./controllers/users");
@@ -17,6 +18,7 @@ app.get("/api/articles", getArticles);
 app.get("/api/articles/:article_id/comments", getArticleCommentsById);
 app.post("/api/articles/:article_id/comments", addComment);
 app.get("/api/users", getUsers);
+app.delete("/api/comments/:comment_id", deleteCommentById);
 
 ////////////////////////////
 app.use((err, req, res, next) => {

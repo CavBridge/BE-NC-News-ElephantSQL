@@ -1,6 +1,7 @@
 const db = require("../db/connection");
 const articles = require("../db/data/development-data/articles");
 const comments = require("../db/data/development-data/comments");
+
 exports.fetchArticlesById = (article_id) => {
   return db
     .query(
@@ -69,5 +70,17 @@ exports.insertComment = (article_id, newComment = 0) => {
     )
     .then(({ rows }) => {
       return rows[0];
+    });
+};
+
+exports.removeCommentById = (comment_id) => {
+  return db
+    .query(`DELETE FROM comments WHERE comment_id = $1`, [comment_id])
+    .then((rows) => {
+      if (rows.rowCount === 0) {
+        return Promise.reject({ status: 404, msg: "not found" });
+      } else if (rows.rowCount > 0) {
+        return Promise.reject({ status: 204, msg: "no content" });
+      }
     });
 };
