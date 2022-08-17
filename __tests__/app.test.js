@@ -367,3 +367,30 @@ describe("USERS", () => {
     });
   });
 });
+describe("COMMENTS", () => {
+  describe("DELETE /api/comments/:comment_id", () => {
+    test("status: 204 returns an empty response body", () => {
+      const comment_id = 3;
+      return request(app).delete(`/api/comments/${comment_id}`).expect(204);
+    });
+
+    test("status: 400 returns invalid input status code if comment is not a number and non existent", () => {
+      const comment_id = "apple";
+      return request(app)
+        .delete(`/api/comments/${comment_id}`)
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("invalid input");
+        });
+    });
+    test("status: 404 returns not found status code if comment is a number but non existent", () => {
+      const comment_id = 5000;
+      return request(app)
+        .delete(`/api/comments/${comment_id}`)
+        .expect(404)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("not found");
+        });
+    });
+  });
+});
