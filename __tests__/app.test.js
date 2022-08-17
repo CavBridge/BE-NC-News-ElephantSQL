@@ -21,6 +21,18 @@ describe("HANDLE INVALID ENDPOINT", () => {
       });
   });
 });
+describe("API", () => {
+  describe("GET /api", () => {
+    test("status: 200 returns JSON of all available end points", () => {
+      return request(app)
+        .get("/api")
+        .expect(200)
+        .then(({ body }) => {
+          expect(Object.keys(body.endpoints)).toHaveLength(3);
+        });
+    });
+  });
+});
 describe("TOPICS", () => {
   describe("GET /api/topics", () => {
     test("returns a status of 200", () => {

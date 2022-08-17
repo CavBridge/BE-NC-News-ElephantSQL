@@ -9,8 +9,10 @@ const {
 } = require("./controllers/articles");
 const { getTopics } = require("./controllers/topics");
 const { getUsers } = require("./controllers/users");
+const { getApi } = require("./controllers/api");
 const app = express();
 app.use(express.json());
+app.get("/api", getApi);
 app.get("/api/topics", getTopics);
 app.get("/api/articles/:article_id", getArticlesAndId);
 app.patch("/api/articles/:article_id", updateArticleVotes);
