@@ -34,12 +34,16 @@ exports.patchArticleVotes = (article_id, newVotes = 0) => {
     });
 };
 
-exports.fetchArticles = (topic, sort_by = "created_at", order = "DESC") => {
+exports.fetchArticles = (
+  topic = "",
+  sort_by = "created_at",
+  order = "DESC"
+) => {
   const queryValue = [];
   let queryStr = `SELECT articles.article_id, articles.title, articles.topic, articles.author, articles.created_at, articles.votes, COUNT(comment_id)::INT AS comment_count
 FROM articles
 LEFT JOIN comments ON articles.article_id = comments.article_id`;
-  if (topic) {
+  if (topic.length > 0) {
     queryValue.push(topic);
     queryStr += ` WHERE articles.topic = $1`;
   }

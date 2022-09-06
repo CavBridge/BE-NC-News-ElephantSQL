@@ -29,10 +29,24 @@ exports.updateArticleVotes = (req, res, next) => {
 };
 
 exports.getArticles = (req, res, next) => {
-  const { sort_by } = req.query;
-  fetchArticles(sort_by)
-    .then((articles) => res.status(200).send({ articles }))
-    .catch(next);
+  const { sort_by, topic } = req.query;
+  if (topic === undefined) {
+    fetchArticles(sort_by)
+      .then((articles) => res.status(200).send({ articles }))
+      .catch(next);
+  } else if (sort_by === undefined) {
+    fetchArticles(topic)
+      .then((articles) => res.status(200).send({ articles }))
+      .catch(next);
+  } else if (topic === undefined && sort_by === undefined) {
+    fetchArticles()
+      .then((articles) => res.status(200).send({ articles }))
+      .catch(next);
+  } else {
+    fetchArticles(topic, sort_by)
+      .then((articles) => res.status(200).send({ articles }))
+      .catch(next);
+  }
 };
 
 exports.getArticleCommentsById = (req, res, next) => {

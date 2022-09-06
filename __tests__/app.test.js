@@ -158,6 +158,18 @@ describe("ARTICLES", () => {
           expect(body.articles).toBeSortedBy("title", { descending: true });
         });
     });
+    test("status:200 returns with article array of article objects of a given topic", () => {
+      return request(app)
+        .get("/api/articles?topic=mitch")
+        .expect(200)
+        .then(({ body }) => {
+          const { articles } = body;
+          expect(articles).toHaveLength(11);
+          expect(body.articles).toBeSortedBy("created_at", {
+            descending: true,
+          });
+        });
+    });
   });
   describe("GET /api/articles/:article_id/comments", () => {
     test("status:200 returns an array of comemnts for the given article_id containing correct properties", () => {
