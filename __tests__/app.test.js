@@ -170,7 +170,7 @@ describe("ARTICLES", () => {
           });
         });
     });
-    test.only("status:200 returns empty article array if topic query exists but with no related content", () => {
+    test("status:200 returns empty article array if topic query exists but with no related content", () => {
       return request(app)
         .get("/api/articles?topic=paper")
         .expect(200)
