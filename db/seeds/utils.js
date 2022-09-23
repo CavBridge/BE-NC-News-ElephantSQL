@@ -40,7 +40,7 @@ exports.validateOrder = (order) => {
     : Promise.reject({ status: 400, msg: "Invalid order query" });
 };
 
-exports.checkExists = async (table, column, value) => {
+exports.checkExists = (table, column, value) => {
   const queryStr = format("SELECT * FROM %I WHERE %I = $1", table, column);
   return db.query(queryStr, [value]).then((dbOutput) => {
     if (!dbOutput.rowCount) {
