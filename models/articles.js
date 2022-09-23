@@ -1,6 +1,11 @@
 const db = require("../db/connection");
 const articles = require("../db/data/development-data/articles");
 const comments = require("../db/data/development-data/comments");
+const {
+  validateSortBy,
+  validateOrder,
+  checkExists,
+} = require("../db/seeds/utils");
 
 exports.fetchArticlesById = (article_id) => {
   return db
@@ -34,12 +39,14 @@ exports.patchArticleVotes = (article_id, newVotes = 0) => {
     });
 };
 
-exports.fetchArticles = (
+exports.fetchArticles = async ({
   topic = "",
   sort_by = "created_at",
-  order = "DESC"
-) => {
+  order = "DESC",
+}) => {
   const queryValue = [];
+  const validSortBy = await validateSortBy(sort_by);
+  const validOrder = await validateOrder(order);
   let queryStr = `SELECT articles.article_id, articles.title, articles.topic, articles.author, articles.created_at, articles.votes, COUNT(comment_id)::INT AS comment_count
 FROM articles
 LEFT JOIN comments ON articles.article_id = comments.article_id`;
@@ -47,8 +54,11 @@ LEFT JOIN comments ON articles.article_id = comments.article_id`;
     queryValue.push(topic);
     queryStr += ` WHERE articles.topic = $1`;
   }
-  queryStr += ` GROUP BY articles.article_id ORDER BY ${sort_by} ${order}`;
-  return db.query(queryStr, queryValue).then((articles) => {
+  queryStr += ` GROUP BY articles.article_id ORDER BY ${validSortBy} ${validOrder}`;
+  return db.query(queryStr, queryValue).then(async (articles) => {
+    if (!articles.rows.length) {
+      await checkExists("topics", "slug", queryValue[0]);
+    }
     return articles.rows;
   });
 };
